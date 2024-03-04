@@ -37,7 +37,8 @@ class StoryData:
         }
     
     def get_text(self) -> str:
-        return f"{self.synopsis}\n{self.endings[0].ending}"
+        ending_text = "\n".join([f"{i+1}. {e.ending}" for i, e in enumerate(self.endings)])
+        return f"Synopsis:\n{self.synopsis}\nEndings:\n{ending_text}"
 
     def __str__(self):
         return f"""StoryData(id={self.id}, title={self.title}, genre={self.genre}, themes={self.themes}, main_scenes={[str(s) for s in self.main_scenes]}, main_characters={[str(c) for c in self.main_characters]}, synopsis={self.synopsis}, chapter_synopses={[str(cs) for cs in self.chapter_synopses]}, beginning={self.beginning}, endings={[str(e) for e in self.endings]})"""

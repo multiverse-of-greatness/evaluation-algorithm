@@ -18,6 +18,17 @@ class StoryChunkRepository:
             data = record.data()
             chunk_obj = data["chunk"]
             return StoryChunk.from_json(chunk_obj)
+        
+    def get_branched_chunks(self, chunk_id: str) -> list[StoryChunk]:
+        chunks = []
+        with self.db.driver.session() as session:
+            results = session.run("MATCH (StoryChunk {id: $chunk_id})-[:BRANCHED_TO]->(target:StoryChunk) RETURN target", chunk_id=chunk_id)
+
+            for record in results:
+                chunk_obj = record["target"]
+                chunks.append(StoryChunk.from_json(chunk_obj))
+
+        return chunks
     
     def list_choices(self, chunk_id: str) -> list[StoryChoice]:
         choices = []
