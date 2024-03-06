@@ -1,5 +1,7 @@
+import os
 from time import sleep
 
+import google.generativeai as genai
 from google.generativeai import GenerationConfig, GenerativeModel
 from google.generativeai.types import HarmBlockThreshold, HarmCategory
 from loguru import logger
@@ -9,6 +11,7 @@ from src.config import MODEL
 
 class GoogleGenerativeAI:
     def __init__(self) -> None:
+        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
         self.model = GenerativeModel(MODEL)
         self.safety_setting = {
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,

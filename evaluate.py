@@ -1,11 +1,12 @@
-import os
 from pathlib import Path
 from time import sleep
+from typing import Annotated
 
-import google.generativeai as genai
+import typer
 from dotenv import load_dotenv
 from loguru import logger
 
+from src.analysis import get_criterion_objs
 from src.config import CRITERIA_DIR_PATH, MODEL, TEMPERATURE
 from src.databases import Neo4J
 from src.models import GoogleGenerativeAI
@@ -46,32 +47,25 @@ def evaluate_story_chunks(story_data: StoryData, criterion_objs: list[Criterion]
         sleep(3)
 
 
-def main():
+def main(
+    story_id: Annotated[
+        str, typer.Option(help="The story id to evaluate")
+    ]
+):
     database = Neo4J()
     story_chunk_repository = StoryChunkRepository(database)
     story_data_repository = StoryDataRepository(database)
     model = GoogleGenerativeAI()
     logger.info("=== Evaluating ===")
     logger.info(f"Model: {MODEL}, Temperature: {TEMPERATURE}")
-    criteria = [criterion for criterion in os.listdir(CRITERIA_DIR_PATH) if criterion.endswith(".txt")]
-    criterion_objs = []
-    for criterion in criteria:
-        with open(CRITERIA_DIR_PATH / criterion, "r") as file:
-            criterion_text = file.read()
-        criterion_name = criterion.split(".")[0]
-        criterion_obj = Criterion(criterion_name, criterion_text)
-        criterion_objs.append(criterion_obj)
-    story_ids = ['488395e4-d625-11ee-9079-9a01b5b45ca5']
-    for story_id in story_ids:
-        story_data = story_data_repository.get(story_id)
-        evaluate_story_data(story_data, criterion_objs, model)
-        evaluate_story_chunks(story_data, criterion_objs, model, story_chunk_repository)
+    criterion_objs = get_criterion_objs()
+    story_data = story_data_repository.get(story_id)
+    evaluate_story_data(story_data, criterion_objs, model)
+    evaluate_story_chunks(story_data, criterion_objs, model, story_chunk_repository)
 
 
 if __name__ == "__main__":
     load_dotenv()
     Path("logs").mkdir(exist_ok=True)
     logger.add("logs/{time}.log")
-    api_key = os.getenv("GOOGLE_API_KEY")
-    genai.configure(api_key=api_key)
-    main()
+    typer.run(main)

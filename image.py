@@ -1,5 +1,7 @@
 from base64 import b64decode
+from typing import Annotated
 
+import typer
 from dotenv import load_dotenv
 
 from src.config import OUTPUT_DIR_PATH
@@ -15,13 +17,17 @@ def write_image(b64image: str, path: str):
         file.write(image)
 
 
-def main():
+def main(
+    story_id: Annotated[
+        str, typer.Option(help="The story id to evaluate")
+    ]
+):
     db = Neo4J()
     story_data_repository = StoryDataRepository(db)
     story_id = '9f195538-daf3-11ee-a2d2-baf3908e4dbe'
     story = story_data_repository.get(story_id)
     characters = story.main_characters
-    output_path = OUTPUT_DIR_PATH / "images" / story_id
+    output_path = OUTPUT_DIR_PATH / story_id / "images"
     output_path.mkdir(parents=True, exist_ok=True)
     for scene in story.main_scenes:
         write_image(scene.image, output_path / f"scene_{scene.id}.png")
@@ -31,4 +37,4 @@ def main():
 
 if __name__ == "__main__":
     load_dotenv()
-    main()
+    typer.run(main)
