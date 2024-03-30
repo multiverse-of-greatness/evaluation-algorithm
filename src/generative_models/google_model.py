@@ -28,7 +28,7 @@ class GoogleModel(LLM):
     def _gemini(self, messages: ConversationHistory, stream: bool = False) -> str:
         last_message = messages[-1]
         if last_message["role"] in ["system", "assistant"]:
-            raise ValueError(f"Last message role is not user: {last_message["role"]}")
+            raise ValueError(f"Last message role is not user: {last_message['role']}")
         history = map_openai_history_to_google_history(messages[:-1])
         chat = self.client.start_chat(history=history)
         chat_completion = chat.send_message(

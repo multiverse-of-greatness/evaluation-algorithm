@@ -6,7 +6,6 @@ from loguru import logger
 
 from src.analysis import evaluate_story
 from src.config import OUTPUT_DIR_PATH
-from src.databases import Neo4J
 from src.evaluation import evaluate_story_chunks, evaluate_story_data
 from src.repositories.story_data import StoryDataRepository
 from src.utils.file_io import write_image
@@ -39,8 +38,7 @@ def run_analysis(
 @app.command()
 def generate_image(
         story_id: Annotated[str, typer.Option(help="The story id to evaluate")]):
-    db = Neo4J()
-    story_data_repository = StoryDataRepository(db)
+    story_data_repository = StoryDataRepository()
     story = story_data_repository.get(story_id)
     output_path = OUTPUT_DIR_PATH / story_id / "images"
     output_path.mkdir(parents=True, exist_ok=True)

@@ -1,14 +1,25 @@
 from src.databases import Neo4J
-from src.models.story_chunk import StoryChunk
 from src.models.story.story_choice import StoryChoice
+from src.models.story_chunk import StoryChunk
+from loguru import logger
 
 
 class StoryChunkRepository:
-    def __init__(self, db: Neo4J) -> None:
-        self.db = db
+    _instance = None
+
+    @classmethod
+    def __new__(cls):
+        if cls._instance is None:
+            logger.info("Creating new StoryChunkRepository instance")
+            cls._instance = super(StoryChunkRepository, cls).__new__(cls)
+            cls._instance._initialize()
+        return cls._instance
+
+    def _initialize(self):
+        self.database = Neo4J()
 
     def get(self, chunk_id: str) -> StoryChunk:
-        with self.db.driver.session() as session:
+        with self.database.driver.session() as session:
             result = session.run("MATCH (chunk:StoryChunk {id: $chunk_id}) RETURN chunk", chunk_id=chunk_id)
             record = result.single()
 
@@ -21,7 +32,7 @@ class StoryChunkRepository:
         
     def get_branched_chunks(self, chunk_id: str) -> list[StoryChunk]:
         chunks = []
-        with self.db.driver.session() as session:
+        with self.database.driver.session() as session:
             results = session.run("MATCH (StoryChunk {id: $chunk_id})-[:BRANCHED_TO]->(target:StoryChunk) RETURN target", chunk_id=chunk_id)
 
             for record in results:
@@ -32,7 +43,7 @@ class StoryChunkRepository:
     
     def list_choices(self, chunk_id: str) -> list[StoryChoice]:
         choices = []
-        with self.db.driver.session() as session:
+        with self.database.driver.session() as session:
             query = "MATCH (StoryChunk {id: $chunk_id})-[b:BRANCHED_TO]->() RETURN PROPERTIES(b)"
             results = session.run(query, chunk_id=chunk_id)
 
@@ -46,7 +57,7 @@ class StoryChunkRepository:
         return choices
 
     def find_next(self, chunk_id: str, choice_id: int = None) -> StoryChunk:
-        with self.db.driver.session() as session:
+        with self.database.driver.session() as session:
             if choice_id:
                 query = "MATCH (StoryChunk {id: $chunk_id})-[b:BRANCHED_TO]->(target:StoryChunk) WHERE PROPERTIES(b).id = $choice_id RETURN target"
                 parameters = {'chunk_id': chunk_id, 'choice_id': choice_id}

@@ -1,5 +1,7 @@
 import json
 
+from loguru import logger
+
 from src.databases import Neo4J
 from src.models.story.chapter_synopsis import ChapterSynopsis
 from src.models.story.character_data import CharacterData
@@ -10,8 +12,18 @@ from src.models.story_data import StoryData
 
 
 class StoryDataRepository:
-    def __init__(self, database: Neo4J) -> None:
-        self.database = database
+    _instance = None
+
+    @classmethod
+    def __new__(cls):
+        if cls._instance is None:
+            logger.info("Creating new StoryDataRepository instance")
+            cls._instance = super(StoryDataRepository, cls).__new__(cls)
+            cls._instance._initialize()
+        return cls._instance
+
+    def _initialize(self):
+        self.database = Neo4J()
 
     def get(self, story_id: str) -> StoryData:
         with self.database.driver.session() as session:

@@ -2,7 +2,6 @@ from time import sleep
 
 from loguru import logger
 
-from src.databases import Neo4J
 from src.generative_models.llm import LLM
 from src.prompts import (story_chunk_evaluation_prompt,
                          story_data_evaluation_prompt)
@@ -14,10 +13,7 @@ from src.utils.openai_ai import append_openai_message
 
 def evaluate_story_data(story_id: str, generative_model: LLM):
     logger.info(f"Evaluating story {story_id}")
-    database = Neo4J()
-    logger.info(f"Connected to database")
-    story_data_repository = StoryDataRepository(database)
-    logger.info(f"Repository initialized")
+    story_data_repository = StoryDataRepository()
     story_data = story_data_repository.get(story_id)
     logger.info(f"Story data loaded")
     criterion_objs = get_criterion_objs()
@@ -33,11 +29,8 @@ def evaluate_story_data(story_id: str, generative_model: LLM):
 
 def evaluate_story_chunks(story_id: str, generative_model: LLM):
     logger.info(f"Evaluating story {story_id}")
-    database = Neo4J()
-    logger.info(f"Connected to database")
-    story_data_repository = StoryDataRepository(database)
-    story_chunk_repository = StoryChunkRepository(database)
-    logger.info(f"Repository initialized")
+    story_data_repository = StoryDataRepository()
+    story_chunk_repository = StoryChunkRepository()
     story_data = story_data_repository.get(story_id)
     frontiers = [story_data.start_chunk]
     logger.info(f"Story data loaded")
