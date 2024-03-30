@@ -5,10 +5,8 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from src.analysis import evaluate_story
-from src.config import OUTPUT_DIR_PATH
 from src.evaluation import evaluate_story_chunks, evaluate_story_data
-from src.repositories.story_data import StoryDataRepository
-from src.utils.file_io import write_image
+from src.image import convert_b64image_to_png
 from src.utils.generative_models import get_generation_model
 
 app = typer.Typer()
@@ -27,7 +25,7 @@ def run_evaluation(
 
 @app.command()
 def run_analysis(
-        story_id: Annotated[str, typer.Option(help="The story id to evaluate")]):
+        story_id: Annotated[str, typer.Option(help="The story id to analyze")]):
     logger.info(f"Running analysis for story {story_id}")
     result = evaluate_story(story_id)
     print(f"Results for story {story_id}:")
@@ -36,16 +34,10 @@ def run_analysis(
 
 
 @app.command()
-def generate_image(
-        story_id: Annotated[str, typer.Option(help="The story id to evaluate")]):
-    story_data_repository = StoryDataRepository()
-    story = story_data_repository.get(story_id)
-    output_path = OUTPUT_DIR_PATH / story_id / "images"
-    output_path.mkdir(parents=True, exist_ok=True)
-    for scene in story.main_scenes:
-        write_image(scene.image, output_path / f"scene_{scene.id}.png")
-    for character in story.main_characters:
-        write_image(character.image, output_path / f"character_{character.id}.png")
+def run_image_conversion(
+        story_id: Annotated[str, typer.Option(help="The story id to convert images for")]):
+    logger.info(f"Converting images for story {story_id}")
+    convert_b64image_to_png(story_id)
 
 
 if __name__ == "__main__":

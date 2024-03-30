@@ -11,15 +11,14 @@ from src.models.story_chunk import StoryChunk
 from src.models.story_data import StoryData
 
 
-class StoryDataRepository:
+class StoryDataRepository(object):
     _instance = None
 
-    @classmethod
     def __new__(cls):
         if cls._instance is None:
-            logger.info("Creating new StoryDataRepository instance")
             cls._instance = super(StoryDataRepository, cls).__new__(cls)
             cls._instance._initialize()
+            logger.info("StoryDataRepository instance created")
         return cls._instance
 
     def _initialize(self):

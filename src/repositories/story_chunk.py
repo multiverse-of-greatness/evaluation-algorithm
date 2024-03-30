@@ -7,12 +7,11 @@ from loguru import logger
 class StoryChunkRepository:
     _instance = None
 
-    @classmethod
     def __new__(cls):
         if cls._instance is None:
-            logger.info("Creating new StoryChunkRepository instance")
             cls._instance = super(StoryChunkRepository, cls).__new__(cls)
             cls._instance._initialize()
+            logger.info("StoryChunkRepository instance created")
         return cls._instance
 
     def _initialize(self):

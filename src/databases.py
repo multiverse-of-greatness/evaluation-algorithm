@@ -7,12 +7,11 @@ from neo4j import GraphDatabase
 class Neo4J:
     _instance = None
 
-    @classmethod
     def __new__(cls):
         if cls._instance is None:
-            logger.info("Creating new Neo4J instance")
             cls._instance = super(Neo4J, cls).__new__(cls)
             cls._instance._initialize()
+            logger.info("Neo4J instance created")
         return cls._instance
     
     def _initialize(self):
