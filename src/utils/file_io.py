@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from base64 import b64decode
 from json.decoder import JSONDecodeError
 
 from loguru import logger
@@ -9,6 +10,14 @@ from src.config import CRITERIA_DIR_PATH, OUTPUT_DIR_PATH
 from src.models.criterion import Criterion
 from src.models.story_chunk import StoryChunk
 from src.models.story_data import StoryData
+
+
+def write_image(b64image: str, path: str):
+    if b64image is None:
+        return
+    image = b64decode(b64image)
+    with open(path, "wb") as file:
+        file.write(image)
 
 
 def get_criterion_objs() -> list[Criterion]:
@@ -25,8 +34,7 @@ def get_criterion_objs() -> list[Criterion]:
 
 def save_raw_output_to_file(
         raw_output: str, model: str, temperature: float, criterion: Criterion, 
-        story_data: StoryData, story_chunk: StoryChunk = None
-    ):
+        story_data: StoryData, story_chunk: StoryChunk = None):
     if story_chunk:
         id = story_chunk.id
         story = story_chunk.get_narratives()

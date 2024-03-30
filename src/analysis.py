@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from src.config import OUTPUT_DIR_PATH
-from src.models.criterion import Criterion
+from src.utils.file_io import get_criterion_objs
 
 
 def calc_mean_sd(criterion_scores: list[float]) -> tuple[float, float]:
@@ -13,7 +13,8 @@ def calc_mean_sd(criterion_scores: list[float]) -> tuple[float, float]:
     return np.mean(criterion_scores), np.std(criterion_scores)
 
 
-def evaluate_story(story_id: str, criterion_objs: list[Criterion]) -> dict:
+def evaluate_story(story_id: str) -> dict:
+    criterion_objs = get_criterion_objs()
     criterion_scores = {criterion.name: [] for criterion in criterion_objs}
     evaluation_obj = {criterion.name: {} for criterion in criterion_objs}
     # Evaluate main story data
@@ -46,6 +47,6 @@ def evaluate_story(story_id: str, criterion_objs: list[Criterion]) -> dict:
                     criterion_scores[criterion.name].append(score_avg)
     # Calculate average and standard deviation
     for criterion in criterion_objs:
-        evaluation_obj[criterion.name]["avg"] = np.mean(criterion_scores[criterion.name])
+        evaluation_obj[criterion.name]["mean"] = np.mean(criterion_scores[criterion.name])
         evaluation_obj[criterion.name]["sd"] = np.std(criterion_scores[criterion.name])
     return evaluation_obj
