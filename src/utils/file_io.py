@@ -5,10 +5,22 @@ from json.decoder import JSONDecodeError
 
 from loguru import logger
 
-from src.config import OUTPUT_DIR_PATH
-from src.structs.criterion import Criterion
-from src.structs.story_chunk import StoryChunk
-from src.structs.story_data import StoryData
+from src.config import CRITERIA_DIR_PATH, OUTPUT_DIR_PATH
+from src.models.criterion import Criterion
+from src.models.story_chunk import StoryChunk
+from src.models.story_data import StoryData
+
+
+def get_criterion_objs() -> list[Criterion]:
+    criteria = [criterion for criterion in os.listdir(CRITERIA_DIR_PATH) if criterion.endswith(".txt")]
+    criterion_objs = []
+    for criterion in criteria:
+        with open(CRITERIA_DIR_PATH / criterion, "r") as file:
+            criterion_text = file.read()
+        criterion_name = criterion.split(".")[0]
+        criterion_obj = Criterion(criterion_name, criterion_text)
+        criterion_objs.append(criterion_obj)
+    return criterion_objs
 
 
 def save_raw_output_to_file(

@@ -1,8 +1,8 @@
-from .chapter_synopsis import ChapterSynopsis
-from .character_data import CharacterData
-from .ending_data import EndingData
-from .scene_data import SceneData
-from .story_chunk import StoryChunk
+from src.models.story.chapter_synopsis import ChapterSynopsis
+from src.models.story.character_data import CharacterData
+from src.models.story.ending_data import EndingData
+from src.models.story.scene_data import SceneData
+from src.models.story_chunk import StoryChunk
 
 
 class StoryData:

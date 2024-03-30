@@ -1,6 +1,6 @@
 import json
 
-from .story_narrative import StoryNarrative
+from src.models.story.story_narrative import StoryNarrative
 
 
 class StoryChunk:

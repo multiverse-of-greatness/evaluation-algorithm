@@ -1,12 +1,12 @@
 import json
 
-from ..databases import Neo4J
-from ..structs.chapter_synopsis import ChapterSynopsis
-from ..structs.character_data import CharacterData
-from ..structs.ending_data import EndingData
-from ..structs.scene_data import SceneData
-from ..structs.story_chunk import StoryChunk
-from ..structs.story_data import StoryData
+from src.databases import Neo4J
+from src.models.story.chapter_synopsis import ChapterSynopsis
+from src.models.story.character_data import CharacterData
+from src.models.story.ending_data import EndingData
+from src.models.story.scene_data import SceneData
+from src.models.story_chunk import StoryChunk
+from src.models.story_data import StoryData
 
 
 class StoryDataRepository:

@@ -1,6 +1,6 @@
-from .structs.story_data import StoryData
-from .structs.story_chunk import StoryChunk
-from .structs.criterion import Criterion
+from src.models.story_data import StoryData
+from src.models.story_chunk import StoryChunk
+from src.models.criterion import Criterion
 
 
 def story_chunk_evaluation_prompt(chunk: StoryChunk, story: StoryData, criterion: Criterion) -> str:

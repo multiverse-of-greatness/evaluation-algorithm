@@ -1,6 +1,6 @@
-from ..databases import Neo4J
-from ..structs.story_chunk import StoryChunk
-from ..structs.story_choice import StoryChoice
+from src.databases import Neo4J
+from src.models.story_chunk import StoryChunk
+from src.models.story.story_choice import StoryChoice
 
 
 class StoryChunkRepository:

@@ -3,20 +3,8 @@ import os
 
 import numpy as np
 
-from .config import CRITERIA_DIR_PATH, OUTPUT_DIR_PATH
-from .structs.criterion import Criterion
-
-
-def get_criterion_objs() -> list[Criterion]:
-    criteria = [criterion for criterion in os.listdir(CRITERIA_DIR_PATH) if criterion.endswith(".txt")]
-    criterion_objs = []
-    for criterion in criteria:
-        with open(CRITERIA_DIR_PATH / criterion, "r") as file:
-            criterion_text = file.read()
-        criterion_name = criterion.split(".")[0]
-        criterion_obj = Criterion(criterion_name, criterion_text)
-        criterion_objs.append(criterion_obj)
-    return criterion_objs
+from src.config import OUTPUT_DIR_PATH
+from src.models.criterion import Criterion
 
 
 def calc_mean_sd(criterion_scores: list[float]) -> tuple[float, float]:
