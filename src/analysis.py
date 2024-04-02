@@ -1,4 +1,4 @@
-import json
+import ujson
 from itertools import product
 from pathlib import Path
 
@@ -32,7 +32,7 @@ def run_analysis(context: AnalysisContext) -> dict:
 
 def calculate_criterion_scores(file_path: Path, criterion: Criterion) -> float:
     with open(file_path / f"{criterion.name}.json", 'r') as file:
-        data = json.load(file)
+        data = ujson.load(file)
     if "error" in data["parsed_output"]:
         return 0
     factor_scores = data["parsed_output"][criterion.name]

@@ -1,10 +1,7 @@
 from pathlib import Path
 
-from loguru import logger
-
 from src.config import OUTPUT_DIR_PATH
 from src.models.criterion import Criterion
-from src.models.story_chunk import StoryChunk
 
 
 class AnalysisContext:
