@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 import typer
 from dotenv import load_dotenv
@@ -6,7 +6,6 @@ from loguru import logger
 
 from src.analysis import run_analysis
 from src.evaluation import run_evaluation
-from src.image import convert_b64image_to_png
 from src.models.analysis_context import AnalysisContext
 from src.models.evaluation_context import EvaluationContext
 from src.repositories.criterion import CriterionRepository
@@ -20,7 +19,7 @@ app = typer.Typer()
 def run_evaluation_with(
         story_id: Annotated[str, typer.Option(help="The story id to evaluate")],
         trial_id: Annotated[str, typer.Option(help="The trial id to save")],
-        model_name: Annotated[str, typer.Option(help="The generative model to use")]):
+        model_name: Annotated[Optional[str], typer.Option(help="The generative model to use")] = "gpt-3.5-turbo-0125"):
     context = EvaluationContext(
         story_id=story_id,
         trial_id=trial_id,
@@ -47,13 +46,6 @@ def run_analysis_with(
     print(f"Results for story {story_id}:")
     for criterion, score in analysis_result.items():
         print(f"{criterion}: {score['mean']:.4f} ± {score['sd']:.4f}")
-
-
-@app.command()
-def run_image_conversion(
-        story_id: Annotated[str, typer.Option(help="The story id to convert images for")]):
-    logger.info(f"Converting images for story {story_id}")
-    convert_b64image_to_png(story_id)
 
 
 if __name__ == "__main__":

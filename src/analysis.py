@@ -1,8 +1,8 @@
-import ujson
 from itertools import product
 from pathlib import Path
 
 import numpy as np
+import ujson
 
 from src.models.analysis_context import AnalysisContext
 from src.models.criterion import Criterion
@@ -12,17 +12,18 @@ def run_analysis(context: AnalysisContext) -> dict:
     criterion_scores = {criterion.name: [] for criterion in context.criterion_objs}
     evaluation_obj = {criterion.name: {} for criterion in context.criterion_objs}
     # Evaluate main story data
-    story_data_path = context.data_dir / "story-data"
     for criterion in context.criterion_objs:
-        score_avg = calculate_criterion_scores(story_data_path, criterion)
+        score_avg = calculate_criterion_scores(context.data_dir, criterion)
         if score_avg > 0:
             criterion_scores[criterion.name].append(score_avg)
+
     # Evaluate chunks
-    chunk_dir_list = [c for c in context.data_dir.iterdir() if c.name.startswith('story-chunk-')]
+    chunk_dir_list = [c for c in context.data_dir.iterdir() if c.is_dir()]
     for story_chunk_path, criterion in product(chunk_dir_list, context.criterion_objs):
         score_avg = calculate_criterion_scores(story_chunk_path, criterion)
         if score_avg > 0:
             criterion_scores[criterion.name].append(score_avg)
+            
     # Calculate average and standard deviation
     for criterion in context.criterion_objs:
         evaluation_obj[criterion.name]["mean"] = np.mean(criterion_scores[criterion.name])

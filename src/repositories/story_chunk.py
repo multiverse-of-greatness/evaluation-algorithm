@@ -1,7 +1,10 @@
-from src.databases import Neo4J
-from src.models.story.story_choice import StoryChoice
-from src.models.story_chunk import StoryChunk
+import os
+
+import requests
+import ujson
 from loguru import logger
+
+from src.types.dataclasses import StoryChunk
 
 
 class StoryChunkRepository:
@@ -13,64 +16,13 @@ class StoryChunkRepository:
             cls._instance._initialize()
             logger.info("StoryChunkRepository instance created")
         return cls._instance
-
+    
     def _initialize(self):
-        self.database = Neo4J()
+        self.api_endpoint = os.getenv("DATA_API_ENDPOINT")
 
     def get(self, chunk_id: str) -> StoryChunk:
-        with self.database.driver.session() as session:
-            result = session.run("MATCH (chunk:StoryChunk {id: $chunk_id}) RETURN chunk", chunk_id=chunk_id)
-            record = result.single()
-
-            if record is None:
-                raise Exception("Chunk not found")
-            
-            data = record.data()
-            chunk_obj = data["chunk"]
-            return StoryChunk.from_json(chunk_obj)
-        
-    def get_branched_chunks(self, chunk_id: str) -> list[StoryChunk]:
-        chunks = []
-        with self.database.driver.session() as session:
-            results = session.run("MATCH (StoryChunk {id: $chunk_id})-[:BRANCHED_TO]->(target:StoryChunk) RETURN target", chunk_id=chunk_id)
-
-            for record in results:
-                chunk_obj = record["target"]
-                chunks.append(StoryChunk.from_json(chunk_obj))
-
-        return chunks
-    
-    def list_choices(self, chunk_id: str) -> list[StoryChoice]:
-        choices = []
-        with self.database.driver.session() as session:
-            query = "MATCH (StoryChunk {id: $chunk_id})-[b:BRANCHED_TO]->() RETURN PROPERTIES(b)"
-            results = session.run(query, chunk_id=chunk_id)
-
-            for record in results:
-                choice_obj = record["PROPERTIES(b)"]
-                if not bool(choice_obj):
-                    raise Exception("No choices found")
-                
-                choices.append(StoryChoice.from_json(choice_obj))
-
-        return choices
-
-    def find_next(self, chunk_id: str, choice_id: int = None) -> StoryChunk:
-        with self.database.driver.session() as session:
-            if choice_id:
-                query = "MATCH (StoryChunk {id: $chunk_id})-[b:BRANCHED_TO]->(target:StoryChunk) WHERE PROPERTIES(b).id = $choice_id RETURN target"
-                parameters = {'chunk_id': chunk_id, 'choice_id': choice_id}
-            else:
-                query = "MATCH (StoryChunk {id: $chunk_id})-[b:BRANCHED_TO]->(target:StoryChunk) RETURN target"
-                parameters = {'chunk_id': chunk_id}
-
-            results = session.run(query, **parameters)
-            records = results.data()
-
-            if not records:
-                raise Exception("No choice found with given choice_id" if choice_id else "No choices found")
-            if not choice_id and len(records) > 1:
-                raise Exception("Multiple choices found, please specify choice_id")
-
-            chunk_obj = records[0]["target"]
-            return StoryChunk.from_json(chunk_obj)
+        response = requests.get(f"{self.api_endpoint}/api/v1/story-chunk/{chunk_id}")
+        if response.status_code == 200:
+            return ujson.loads(response.content)
+        else:
+            raise ValueError(f"Failed to get story chunk for chunk {chunk_id}")
