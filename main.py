@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
@@ -13,6 +14,22 @@ from src.repositories.story_data import StoryDataRepository
 from src.utils.generative_models import get_generation_model
 
 app = typer.Typer()
+
+
+@app.command()
+def batch_run_evaluation_with(
+        story_ids_list_path: Annotated[Path, typer.Option(
+            help="Path of a text file containing a list of story ids to evaluate. Story ids should be separated by new "
+                 "lines")],
+        trial_id: Annotated[str, typer.Option(help="The trial id to save")],
+        model_name: Annotated[Optional[str], typer.Option(help="The generative model to use")] = "gpt-3.5-turbo-0125"):
+    with open(story_ids_list_path, "r") as f:
+        story_ids = f.read().splitlines()
+        logger.info(f"Running evaluation for {len(story_ids)} stories")
+        for story_id in story_ids:
+            logger.info(f"Running evaluation for story {story_id}")
+            run_evaluation_with(story_id=story_id, trial_id=trial_id, model_name=model_name)
+            logger.info(f"Finished evaluation for story {story_id}")
 
 
 @app.command()
